@@ -6,11 +6,8 @@
 
 #include "surface.hpp"
 
-void draw_line_solid( Surface& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB aColor )
+void draw_line_solid(Surface& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB aColor)
 {
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
 	int startX = static_cast<int>(aBegin.x);
 	int startY = static_cast<int>(aBegin.y);
 	int endX = static_cast<int>(aEnd.x);
@@ -22,30 +19,34 @@ void draw_line_solid( Surface& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB 
 	int stepY = (startY < endY) ? 1 : -1;
 	int error = deltaX - deltaY;
 
-	 while (startX != endX || startY != endY)
-    {
-        aSurface.set_pixel_srgb(startX, startY, aColor);
-        int error2 = 2 * error;
-        if (error2 > -deltaY)
-        {
-            error -= deltaY;
-            startX += stepX;
-        }        if (error2 < deltaX)
-        {
-            error += deltaX;
-            startY += stepY;
-        }
-    }
-    aSurface.set_pixel_srgb(startX, startY, aColor); // Set the last pixel
+	while (startX != endX || startY != endY)
+	{
 
+		if (startX >= 0 && startX < aSurface.get_width() &&
+			startY >= 0 && startY < aSurface.get_height())
+		{
+			aSurface.set_pixel_srgb(startX, startY, aColor);
+		}
 
-	//TODO: remove the following when you start your implementation
-	//(void)aSurface; // Avoid warnings about unused arguments until the function
-	//(void)aBegin;   // is properly implemented.
-	//(void)aEnd;
-	//(void)aColor;
+		int error2 = 2 * error;
+		if (error2 > -deltaY)
+		{
+			error -= deltaY;
+			startX += stepX;
+		}        if (error2 < deltaX)
+		{
+			error += deltaX;
+			startY += stepY;
+		}
+	}
+	// Set the last pixel if within bounds
+	if (endX >= 0 && endX < aSurface.get_width() &&
+		endY >= 0 && endY < aSurface.get_height())
+	{
+		aSurface.set_pixel_srgb(endX, endY, aColor);
+	}
+
 }
-
 void draw_triangle_wireframe( Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorU8_sRGB aColor )
 {
 	
