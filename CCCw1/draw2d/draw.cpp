@@ -9,6 +9,7 @@
 
 void draw_line_solid(Surface& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB aColor)
 {
+	//test
 	int startX = static_cast<int>(aBegin.x);
 	int startY = static_cast<int>(aBegin.y);
 	int endX = static_cast<int>(aEnd.x);
