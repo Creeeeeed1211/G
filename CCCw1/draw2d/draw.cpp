@@ -6,6 +6,7 @@
 
 #include "surface.hpp"
 
+
 void draw_line_solid(Surface& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB aColor)
 {
 	int startX = static_cast<int>(aBegin.x);
@@ -47,11 +48,12 @@ void draw_line_solid(Surface& aSurface, Vec2f aBegin, Vec2f aEnd, ColorU8_sRGB a
 	}
 
 }
-void draw_triangle_wireframe( Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorU8_sRGB aColor )
+
+void draw_triangle_wireframe(Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorU8_sRGB aColor)
 {
-	
-	
-	
+
+
+
 	//TODO: your implementation goes here
 	//TODO: your implementation goes here
 	//TODO: your implementation goes here
@@ -64,7 +66,7 @@ void draw_triangle_wireframe( Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2
 	//(void)aColor;
 }
 
-void draw_triangle_solid( Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorU8_sRGB aColor )
+void draw_triangle_solid(Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorU8_sRGB aColor)
 {
 	//TODO: your implementation goes here
 	//TODO: your implementation goes here
@@ -78,26 +80,79 @@ void draw_triangle_solid( Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, Co
 	(void)aColor;
 }
 
-void draw_triangle_interp( Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorF aC0, ColorF aC1, ColorF aC2 )
+void draw_triangle_interp(Surface& aSurface, Vec2f aP0, Vec2f aP1, Vec2f aP2, ColorF aC0, ColorF aC1, ColorF aC2) 
 {
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
-	//TODO: your implementation goes here
+	//Step 1: Calculate the area of the triangle
+	float area = std::abs(  aP0.x * (aP1.y - aP2.y) + aP1.x * (aP2.y - aP0.y) + aP2.x * (aP0.y - aP1.y)  ) / 2.0f;
 
-	//TODO: remove the following when you start your implementation
-	//(void)aSurface; // Avoid warnings about unused arguments until the function
-	//(void)aP0;      // is properly implemented.
-	//(void)aP1;
-	//(void)aP2;
-	//(void)aC0;
-	//(void)aC1;
-	//(void)aC2;
+	// Check for degenerate triangle (zero area)
+	if (area == 0.0f) 
+	{
+		return; // Do not draw anything for degenerate triangles
+	}
 
-	
+	// Step 3: Draw the triangle edges using the draw_line_solid function
+	ColorU8_sRGB color0 = linear_to_srgb(aC0);
+	ColorU8_sRGB color1 = linear_to_srgb(aC1);
+	ColorU8_sRGB color2 = linear_to_srgb(aC2);
+
+	// Draw the edges
+	draw_line_solid(aSurface, aP0, aP1, color0);
+	draw_line_solid(aSurface, aP1, aP2, color1);
+	draw_line_solid(aSurface, aP2, aP0, color2);
+
+	int minX = static_cast<int>(std::floor(std::min({ aP0.x, aP1.x, aP2.x })));
+	int maxX = static_cast<int>(std::ceil(std::max({ aP0.x, aP1.x, aP2.x })));
+	int minY = static_cast<int>(std::floor(std::min({ aP0.y, aP1.y, aP2.y })));
+	int maxY = static_cast<int>(std::ceil(std::max({ aP0.y, aP1.y, aP2.y })));
+
+	// Ensure the bounding box is within surface dimensions
+	minX = std::max(0, minX);
+	maxX = std::min(static_cast<int>(aSurface.get_width() - 1), maxX);
+	minY = std::max(0, minY);
+	maxY = std::min(static_cast<int>(aSurface.get_height() - 1), maxY);
+
+	// Iterate over each pixel in the bounding box
+	for (int y = minY; y <= maxY; ++y) 
+	{
+		for (int x = minX; x <= maxX; ++x) 
+		{
+			//Calculate barycentric coordinates
+			float w0 = (aP1.x - aP0.x) * (y - aP0.y) - (aP1.y - aP0.y) * (x - aP0.x);
+			float w1 = (aP2.x - aP1.x) * (y - aP1.y) - (aP2.y - aP1.y) * (x - aP1.x);
+			float w2 = (aP0.x - aP2.x) * (y - aP2.y) - (aP0.y - aP2.y) * (x - aP2.x);
+
+			// Check if the pixel is inside the triangle
+			if (w0 >= 0 && w1 >= 0 && w2 >= 0) 
+			{ // If inside the triangle
+				//Interpolate the color
+				float total = w0 + w1 + w2;
+				float alpha = w0 / total;
+				float beta = w1 / total;
+				float gamma = w2 / total;
+
+				ColorF interpolatedColor = 
+				{
+					aC0.r * alpha + aC1.r * beta + aC2.r * gamma,
+					aC0.g * alpha + aC1.g * beta + aC2.g * gamma,
+					aC0.b * alpha + aC1.b * beta + aC2.b * gamma
+				};
+
+				// Convert the color from float to uint8_t format
+				ColorU8_sRGB finalColor = linear_to_srgb(interpolatedColor);
+
+				// Set the pixel color on the surface
+				aSurface.set_pixel_srgb(x, y, finalColor);
+			}
+		}
+	}
 }
 
 
-void draw_rectangle_solid( Surface& aSurface, Vec2f aMinCorner, Vec2f aMaxCorner, ColorU8_sRGB aColor )
+
+
+
+void draw_rectangle_solid(Surface& aSurface, Vec2f aMinCorner, Vec2f aMaxCorner, ColorU8_sRGB aColor)
 {
 	//TODO: your implementation goes here
 	//TODO: your implementation goes here
@@ -110,7 +165,7 @@ void draw_rectangle_solid( Surface& aSurface, Vec2f aMinCorner, Vec2f aMaxCorner
 	(void)aColor;
 }
 
-void draw_rectangle_outline( Surface& aSurface, Vec2f aMinCorner, Vec2f aMaxCorner, ColorU8_sRGB aColor )
+void draw_rectangle_outline(Surface& aSurface, Vec2f aMinCorner, Vec2f aMaxCorner, ColorU8_sRGB aColor)
 {
 	//TODO: your implementation goes here
 	//TODO: your implementation goes here
