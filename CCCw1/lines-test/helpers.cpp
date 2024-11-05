@@ -59,6 +59,21 @@ std::size_t max_col_pixel_count( Surface const& aSurface )
 }
 
 
+ColorU8_sRGB get_pixel_color(Surface const& surface, Surface::Index x, Surface::Index y)
+{
+	auto width = surface.get_width();
+	const std::uint8_t* surfaceData = surface.get_surface_ptr();
+
+	// Compute the linear index for the specified (x, y) position
+	Surface::Index index = y * width + x;
+
+	// Each pixel is stored as 32-bit RGBx (4 bytes per pixel)
+	const std::uint8_t* pixel = &surfaceData[index * 4];
+
+	// Retrieve color as ColorU8_sRGB
+	return { pixel[0], pixel[1], pixel[2] };
+}
+
 std::array<std::size_t,9> count_pixel_neighbours( Surface const& aSurface )
 {
 	std::array<std::size_t,9> res;
