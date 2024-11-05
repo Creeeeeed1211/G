@@ -4,11 +4,14 @@
 #include <array>
 
 #include <cstddef>
-
+#include "../draw2d/surface.hpp"
+#include "../draw2d/draw.hpp"
 #include "../draw2d/forward.hpp"
+
 
 std::size_t max_row_pixel_count( Surface const& );
 std::size_t max_col_pixel_count( Surface const& );
+ColorU8_sRGB get_pixel_color(Surface const& surface, Surface::Index x, Surface::Index y);
 
 std::array<std::size_t,9> count_pixel_neighbours( Surface const& );
 
