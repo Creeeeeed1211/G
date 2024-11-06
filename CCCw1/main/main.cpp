@@ -225,8 +225,11 @@ int main( int aArgc, char* aArgv[] ) try
 		surface.clear();
 		
 		surface.set_pixel_srgb(10 ,10 , { 255, 0, 0 });
-		draw_line_solid(surface,startPoint,endPoint, { 255, 0, 0 });
-		
+		//draw_line_solid(surface,startPoint,endPoint, { 255, 0, 0 });
+		/*draw_rectangle_outline(surface,
+			{ 50,100 },
+			{ 200,200 },		
+			{ 255,255,255 });*/
 
 		background.draw( surface );
 		asteroids.draw( surface );
